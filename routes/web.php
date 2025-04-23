@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\EmpleadoController;
@@ -23,25 +24,35 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('dashboard');
-})->name('dashboard');
+// Rutas de autenticación
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
+Route::post('/register', [AuthController::class, 'register']);
 
-Route::resources([
-    'categorias' => CategoriaController::class,
-    'proveedores' => ProveedorController::class,
-    'libros' => LibroController::class,
-    'clientes' => ClienteController::class,
-    'empleados' => EmpleadoController::class,
-    'ventas' => VentaController::class,
-    'pagos' => PagoController::class,
-    'inventarios' => InventarioController::class,
-    'facturas' => FacturaController::class,
-]);
+// Rutas protegidas que requieren autenticación
+Route::middleware(['auth'])->group(function () {
+    Route::get('/', function () {
+        return view('dashboard');
+    })->name('dashboard');
 
-Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index');
-Route::get('/reportes/ventas-diarias', [ReporteController::class, 'ventasDiarias'])->name('reportes.ventas-diarias');
-Route::get('/reportes/ventas-mensuales', [ReporteController::class, 'ventasMensuales'])->name('reportes.ventas-mensuales');
-Route::get('/reportes/inventario-actual', [ReporteController::class, 'inventarioActual'])->name('reportes.inventario-actual');
-Route::get('/reportes/libros-populares', [ReporteController::class, 'librosPopulares'])->name('reportes.libros-populares');
-Route::get('/reportes/rendimiento-empleados', [ReporteController::class, 'rendimientoEmpleados'])->name('reportes.rendimiento-empleados');
+    Route::resources([
+        'categorias' => CategoriaController::class,
+        'proveedores' => ProveedorController::class,
+        'libros' => LibroController::class,
+        'clientes' => ClienteController::class,
+        'empleados' => EmpleadoController::class,
+        'ventas' => VentaController::class,
+        'pagos' => PagoController::class,
+        'inventarios' => InventarioController::class,
+        'facturas' => FacturaController::class,
+    ]);
+
+    Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index');
+    Route::get('/reportes/ventas-diarias', [ReporteController::class, 'ventasDiarias'])->name('reportes.ventas-diarias');
+    Route::get('/reportes/ventas-mensuales', [ReporteController::class, 'ventasMensuales'])->name('reportes.ventas-mensuales');
+    Route::get('/reportes/inventario-actual', [ReporteController::class, 'inventarioActual'])->name('reportes.inventario-actual');
+    Route::get('/reportes/libros-populares', [ReporteController::class, 'librosPopulares'])->name('reportes.libros-populares');
+    Route::get('/reportes/rendimiento-empleados', [ReporteController::class, 'rendimientoEmpleados'])->name('reportes.rendimiento-empleados');
+});
